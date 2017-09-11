@@ -1,11 +1,11 @@
-package com.jgreubel.elmtable
+package com.jgreubel
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 
 @SpringBootApplication
-class ElmTableApplication
+class KotlineElmTableExampleApplication
 
 fun main(args: Array<String>) {
-    SpringApplication.run(ElmTableApplication::class.java, *args)
+    SpringApplication.run(KotlineElmTableExampleApplication::class.java, *args)
 }
