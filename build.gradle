@@ -1,0 +1,30 @@
+plugins {
+	id "org.jetbrains.kotlin.jvm" version "1.1.4-3"
+	id "org.jetbrains.kotlin.plugin.allopen" version "1.1.4-3"
+	id "org.jetbrains.kotlin.plugin.spring" version "1.1.4-3"
+	id "org.jetbrains.kotlin.plugin.noarg" version "1.1.4-3"
+	id "org.jetbrains.kotlin.plugin.jpa" version "1.1.4-3"
+	id "org.springframework.boot" version "1.5.6.RELEASE"
+}
+
+jar {
+	baseName = "elm-table"
+	version = "0.0.1-SNAPSHOT"
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile "org.springframework.boot:spring-boot-starter-data-jpa"
+	compile "org.springframework.boot:spring-boot-starter-web"
+	compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:1.1.4-3"
+	compile "org.jetbrains.kotlin:kotlin-reflect:1.1.4-3"
+
+	runtime "org.springframework.boot:spring-boot-devtools"
+	runtime "org.postgresql:postgresql"
+
+	testCompile "org.springframework.boot:spring-boot-starter-test"
+	testCompile "org.jetbrains.kotlin:kotlin-test:1.1.4-3"
+}

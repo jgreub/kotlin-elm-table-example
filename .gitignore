@@ -1,0 +1,15 @@
+# Mac OS
+.DS_Store
+
+# Gradle
+.gradle
+/build/
+
+# IntelliJ IDEA
+.idea
+*.iws
+*.iml
+*.ipr
+
+# Elm
+/elm/elm-stuff/
