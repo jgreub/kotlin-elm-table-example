@@ -62,7 +62,7 @@ subscriptions model =
 
 getFruits : Cmd Msg
 getFruits =
-  Http.send GotFruits (Http.get "/fruit" decodeFruits)
+  Http.send GotFruits (Http.get "/fruit?name=Apple" decodeFruits)
 
 decodeFruits : JD.Decoder (List Fruit)
 decodeFruits =
