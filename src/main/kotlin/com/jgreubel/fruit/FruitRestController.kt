@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController
 class FruitRestController(val fruitRepository: FruitRepository) {
 
     @GetMapping("/fruit")
-    fun findAll(@QuerydslPredicate predicate: Predicate): Iterable<Fruit> {
+    fun findAll(@QuerydslPredicate(bindings = FruitQuerydslBindingCustomizer::class) predicate: Predicate): Iterable<Fruit> {
         return fruitRepository.findAll(predicate)
     }
 
