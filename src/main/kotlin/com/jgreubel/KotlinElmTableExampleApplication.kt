@@ -6,8 +6,8 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport
 
 @SpringBootApplication
 @EnableSpringDataWebSupport
-class KotlineElmTableExampleApplication
+class KotlinElmTableExampleApplication
 
 fun main(args: Array<String>) {
-    SpringApplication.run(KotlineElmTableExampleApplication::class.java, *args)
+    SpringApplication.run(KotlinElmTableExampleApplication::class.java, *args)
 }
