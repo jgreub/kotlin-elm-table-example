@@ -1,10 +1,10 @@
 plugins {
-	id "org.jetbrains.kotlin.jvm" version "1.1.50"
-	id "org.jetbrains.kotlin.kapt" version "1.1.50"
-	id "org.jetbrains.kotlin.plugin.spring" version "1.1.50"
-	id "org.jetbrains.kotlin.plugin.jpa" version "1.1.50"
-	id "org.springframework.boot" version "1.5.7.RELEASE"
-	id "org.mohme.gradle.elm-plugin" version "0.2.1"
+	id "org.jetbrains.kotlin.jvm" version "1.2.41"
+	id "org.jetbrains.kotlin.kapt" version "1.2.41"
+	id "org.jetbrains.kotlin.plugin.spring" version "1.2.41"
+	id "org.jetbrains.kotlin.plugin.jpa" version "1.2.41"
+	id "org.springframework.boot" version "1.5.12.RELEASE"
+	id "org.mohme.gradle.elm-plugin" version "1.0.0"
 }
 
 repositories {
@@ -12,12 +12,12 @@ repositories {
 }
 
 dependencies {
-	ext.kotlinVersion = "1.1.50"
-	ext.queryDslVersion = "4.1.4"
+	ext.kotlinVersion = "1.2.41"
+	ext.queryDslVersion = "4.2.1"
 
 	compile "org.springframework.boot:spring-boot-starter-data-jpa"
 	compile "org.springframework.boot:spring-boot-starter-web"
-	compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}"
+	compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
 	compile "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
 	compile "org.flywaydb:flyway-core"
 	compile "com.querydsl:querydsl-jpa:${queryDslVersion}"
@@ -42,7 +42,7 @@ sourceSets {
 
 processResources.dependsOn elmMake
 elmMake {
-	buildDir = "build/resources/main/static"
+	buildDir = project.file("build/resources/main/static")
 	executionDir = "elm"
-	sourceDir = "elm/src"
+	sourceDir = project.file("elm/src")
 }
