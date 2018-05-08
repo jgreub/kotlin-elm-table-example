@@ -68,7 +68,7 @@ decodeFruits : JD.Decoder (List Fruit)
 decodeFruits =
   JD.list decodeFruit
 
-decodeFruit: JD.Decoder Fruit
+decodeFruit : JD.Decoder Fruit
 decodeFruit =
   JD.map Fruit
     (JD.field "name" JD.string)
