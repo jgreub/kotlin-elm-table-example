@@ -1,4 +1,5 @@
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import Http
 import Json.Decode as JD
 
@@ -14,7 +15,8 @@ main =
 -- MODEL
 
 type alias Fruit =
-  { name : String
+  { name : String,
+    color: String
   }
 
 type alias Model = (List Fruit)
@@ -36,19 +38,24 @@ update msg model =
       (fruits, Cmd.none)
 
     GotFruits (Err _) ->
-      ([Fruit "HTTP ERROR"], Cmd.none)
+      ([], Cmd.none)
 
 
 -- VIEW
 
 view : Model -> Html Msg
 view model =
-  ul []
-    (List.map drawFruit model)
+  table [] (drawHeader :: (List.map drawFruit model))
+
+drawHeader : Html Msg
+drawHeader =
+  tr [] [ td [ style [ ("backgroundColor", "lightgray") ] ] [text "Name"]
+    ,  td [ style [ ("backgroundColor", "lightgray") ] ] [text "Color"]
+    ]
 
 drawFruit : Fruit -> Html Msg
 drawFruit fruit =
-  li [] [ text fruit.name ]
+  tr [] [ td [] [text fruit.name], td [] [text fruit.color] ]
 
 
 -- SUBSCRIPTIONS
@@ -70,5 +77,6 @@ decodeFruits =
 
 decodeFruit : JD.Decoder Fruit
 decodeFruit =
-  JD.map Fruit
+  JD.map2 Fruit
     (JD.field "name" JD.string)
+    (JD.field "color" JD.string)
