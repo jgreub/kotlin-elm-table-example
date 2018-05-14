@@ -10,6 +10,7 @@
 *.iws
 *.iml
 *.ipr
+/out/
 
 # Elm
 /elm/elm-stuff/

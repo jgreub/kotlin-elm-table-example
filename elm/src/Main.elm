@@ -49,9 +49,11 @@ view model =
 
 drawHeader : Html Msg
 drawHeader =
-  tr [] [ td [ style [ ("backgroundColor", "lightgray") ] ] [text "Name"]
-    ,  td [ style [ ("backgroundColor", "lightgray") ] ] [text "Color"]
+  thead [ style [ ("backgroundColor", "lightgray") ] ] [
+    tr [] [ td [] [text "Name"]
+      ,  td [] [text "Color"]
     ]
+  ]
 
 drawFruit : Fruit -> Html Msg
 drawFruit fruit =
