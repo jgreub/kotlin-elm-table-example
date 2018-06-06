@@ -1,5 +1,6 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Http
 import Json.Decode as JD
 
@@ -11,6 +12,10 @@ main =
   , subscriptions = subscriptions
   }
 
+init : (Model, Cmd Msg)
+init =
+  (Model [] "", getFruits "")
+
 
 -- MODEL
 
@@ -19,44 +24,52 @@ type alias Fruit =
     color: String
   }
 
-type alias Model = (List Fruit)
-
-init : (Model, Cmd Msg)
-init =
-  ([], getFruits)
+type alias Model =
+  { fruits: List Fruit
+  , nameFilter: String
+  }
 
 
 -- UPDATE
 
 type Msg
   = GotFruits (Result Http.Error (List Fruit))
+  | FilterName String
 
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     GotFruits (Ok fruits) ->
-      (fruits, Cmd.none)
+      ({model | fruits = fruits}, Cmd.none)
 
     GotFruits (Err _) ->
-      ([], Cmd.none)
+      ({model | fruits = []}, Cmd.none)
+
+    FilterName nameFilter ->
+      ({model | nameFilter = nameFilter}, getFruits nameFilter)
 
 
 -- VIEW
 
 view : Model -> Html Msg
 view model =
-  table [] (drawHeader :: (List.map drawFruit model))
+  div []
+    [ drawTable model.fruits
+    , input [ onInput FilterName ] []
+    ]
+
+drawTable : List Fruit -> Html Msg
+drawTable fruits =
+  table [] (drawHeader :: (List.map drawRow fruits))
 
 drawHeader : Html Msg
 drawHeader =
   thead [ style [ ("backgroundColor", "lightgray") ] ] [
-    tr [] [ td [] [text "Name"]
-      ,  td [] [text "Color"]
-    ]
+    tr [] [ td [] [text "Name"], td [] [text "Color"] ]
   ]
 
-drawFruit : Fruit -> Html Msg
-drawFruit fruit =
+drawRow : Fruit -> Html Msg
+drawRow fruit =
   tr [] [ td [] [text fruit.name], td [] [text fruit.color] ]
 
 
@@ -69,9 +82,16 @@ subscriptions model =
 
 -- HTTP
 
-getFruits : Cmd Msg
-getFruits =
-  Http.send GotFruits (Http.get "/fruit?name=Apple" decodeFruits)
+getFruits : String -> Cmd Msg
+getFruits nameFilter =
+  let
+    queryParams =
+      if not (String.isEmpty nameFilter) then
+        "?name=" ++ nameFilter
+      else
+        ""
+  in
+    Http.send GotFruits (Http.get ("/fruit" ++ queryParams) decodeFruits)
 
 decodeFruits : JD.Decoder (List Fruit)
 decodeFruits =
