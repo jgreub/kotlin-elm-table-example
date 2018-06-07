@@ -14,27 +14,32 @@ main =
 
 init : (Model, Cmd Msg)
 init =
-  (Model [] "", getFruits "")
+  (Model [] (Filters "" ""), getFruits (Filters "" ""))
 
 
 -- MODEL
+
+type alias Model =
+  { fruits: List Fruit
+  , filters: Filters
+  }
 
 type alias Fruit =
   { name : String,
     color: String
   }
 
-type alias Model =
-  { fruits: List Fruit
-  , nameFilter: String
+type alias Filters =
+  { name: String,
+    color: String
   }
-
 
 -- UPDATE
 
 type Msg
   = GotFruits (Result Http.Error (List Fruit))
   | FilterName String
+  | FilterColor String
 
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -46,7 +51,18 @@ update msg model =
       ({model | fruits = []}, Cmd.none)
 
     FilterName nameFilter ->
-      ({model | nameFilter = nameFilter}, getFruits nameFilter)
+      let
+        oldFilters = model.filters
+        newFilters = {oldFilters | name = nameFilter}
+      in
+        ({model | filters = newFilters}, getFruits newFilters)
+
+    FilterColor colorFilter ->
+      let
+        oldFilters = model.filters
+        newFilters = {oldFilters | color = colorFilter}
+      in
+        ({model | filters = newFilters}, getFruits newFilters)
 
 
 -- VIEW
@@ -56,6 +72,7 @@ view model =
   div []
     [ drawTable model.fruits
     , input [ onInput FilterName ] []
+    , input [ onInput FilterColor ] []
     ]
 
 drawTable : List Fruit -> Html Msg
@@ -82,12 +99,16 @@ subscriptions model =
 
 -- HTTP
 
-getFruits : String -> Cmd Msg
-getFruits nameFilter =
+getFruits : Filters -> Cmd Msg
+getFruits filters =
   let
     queryParams =
-      if not (String.isEmpty nameFilter) then
-        "?name=" ++ nameFilter
+      if not (String.isEmpty filters.name) && not (String.isEmpty filters.color) then
+        "?name=" ++ filters.name ++ "&color=" ++ filters.color
+      else if not (String.isEmpty filters.name) then
+        "?name=" ++ filters.name
+      else if not (String.isEmpty filters.color) then
+        "?color=" ++ filters.color
       else
         ""
   in
