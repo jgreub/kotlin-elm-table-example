@@ -15,7 +15,7 @@ main =
 init : (Model, Cmd Msg)
 init =
   let
-    initialModel = Model [] (Filters "" "")
+    initialModel = Model [] []
   in
     (initialModel, getFruits initialModel.filters)
 
@@ -24,7 +24,7 @@ init =
 
 type alias Model =
   { fruits: List Fruit
-  , filters: Filters
+  , filters: List Filter
   }
 
 type alias Fruit =
@@ -32,9 +32,9 @@ type alias Fruit =
   , color: String
   }
 
-type alias Filters =
+type alias Filter =
   { name: String
-  , color: String
+  , value: String
   }
 
 
@@ -42,8 +42,7 @@ type alias Filters =
 
 type Msg
   = GotFruits (Result Http.Error (List Fruit))
-  | FilterName String
-  | FilterColor String
+  | UpdateFilter Filter
 
 update: Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -54,43 +53,58 @@ update msg model =
     GotFruits (Err _) ->
       ({model | fruits = []}, Cmd.none)
 
-    FilterName nameFilter ->
+    UpdateFilter filter ->
       let
-        oldFilters = model.filters
-        newFilters = {oldFilters | name = nameFilter}
+        newFilters = updateFilter model.filters filter
       in
         ({model | filters = newFilters}, getFruits newFilters)
 
-    FilterColor colorFilter ->
-      let
-        oldFilters = model.filters
-        newFilters = {oldFilters | color = colorFilter}
-      in
-        ({model | filters = newFilters}, getFruits newFilters)
+updateFilter : List Filter -> Filter -> List Filter
+updateFilter filters filter =
+  let
+    filteredFilters = List.filter (\f -> f.name /= filter.name) filters
+  in
+    if String.isEmpty filter.value then
+      filteredFilters
+    else
+      filter :: filteredFilters
 
 
 -- VIEW
 
 view : Model -> Html Msg
 view model =
-  div []
-    [ drawTable model.fruits
-    , input [ onInput FilterName, placeholder "Filter Name..." ] []
-    , input [ onInput FilterColor, placeholder "Filter Color..." ] []
-    ]
+  div [] [ drawTable model.fruits ]
 
 drawTable : List Fruit -> Html Msg
 drawTable fruits =
-  table [] (drawHeader :: (List.map drawRow fruits))
+  let
+    propertyNames = [ "name", "color" ]
+  in
+    table [] (drawHeaderRow propertyNames :: drawFilterRow propertyNames :: (List.map drawFruitRow fruits))
 
-drawHeader : Html Msg
-drawHeader =
-  thead [ style [ ("backgroundColor", "lightgray") ] ] [
-    tr [] [ td [] [text "Name"], td [] [text "Color"] ]
-  ]
+drawHeaderRow : List String -> Html Msg
+drawHeaderRow names =
+  thead [ style [ ("backgroundColor", "lightgray") ] ] [ tr [] (List.map drawHeader names) ]
 
-drawRow : Fruit -> Html Msg
-drawRow fruit =
+drawHeader : String -> Html Msg
+drawHeader name =
+  td [] [text name]
+
+drawFilterRow : List String -> Html Msg
+drawFilterRow names =
+  tr [] (List.map drawFilter names)
+
+drawFilter : String -> Html Msg
+drawFilter filterName =
+  td [] [ input [ onInput (createOnFilterChange filterName), placeholder ("Filter...") ] [] ]
+
+createOnFilterChange : String -> String -> Msg
+createOnFilterChange filterName =
+  (\fv -> UpdateFilter (Filter filterName fv))
+
+drawFruitRow : Fruit -> Html Msg
+drawFruitRow fruit =
   tr [] [ td [] [text fruit.name], td [] [text fruit.color] ]
 
 
@@ -103,20 +117,21 @@ subscriptions model =
 
 -- HTTP
 
-getFruits : Filters -> Cmd Msg
+getFruits : List Filter -> Cmd Msg
 getFruits filters =
   let
-    queryParams =
-      if not (String.isEmpty filters.name) && not (String.isEmpty filters.color) then
-        "?name=" ++ filters.name ++ "&color=" ++ filters.color
-      else if not (String.isEmpty filters.name) then
-        "?name=" ++ filters.name
-      else if not (String.isEmpty filters.color) then
-        "?color=" ++ filters.color
+    queryParams = getFilterQueryParams filters
+    url =
+      if String.isEmpty queryParams then
+        "/fruit"
       else
-        ""
+        "/fruit" ++ "?" ++ queryParams
   in
-    Http.send GotFruits (Http.get ("/fruit" ++ queryParams) decodeFruits)
+    Http.send GotFruits (Http.get url decodeFruits)
+
+getFilterQueryParams : List Filter -> String
+getFilterQueryParams filters =
+  String.join "&" (List.map (\f -> f.name ++ "=" ++ f.value) filters)
 
 decodeFruits : JD.Decoder (List Fruit)
 decodeFruits =
