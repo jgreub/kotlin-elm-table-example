@@ -1,1 +1,0 @@
-ALTER TABLE fruit ADD COLUMN color TEXT;
