@@ -14,7 +14,10 @@ main =
 
 init : (Model, Cmd Msg)
 init =
-  (Model [] (Filters "" ""), getFruits (Filters "" ""))
+  let
+    initialModel = Model [] (Filters "" "")
+  in
+    (initialModel, getFruits initialModel.filters)
 
 
 -- MODEL
@@ -25,14 +28,15 @@ type alias Model =
   }
 
 type alias Fruit =
-  { name : String,
-    color: String
+  { name : String
+  , color: String
   }
 
 type alias Filters =
-  { name: String,
-    color: String
+  { name: String
+  , color: String
   }
+
 
 -- UPDATE
 
@@ -71,8 +75,8 @@ view : Model -> Html Msg
 view model =
   div []
     [ drawTable model.fruits
-    , input [ onInput FilterName ] []
-    , input [ onInput FilterColor ] []
+    , input [ onInput FilterName, placeholder "Filter Name..." ] []
+    , input [ onInput FilterColor, placeholder "Filter Color..." ] []
     ]
 
 drawTable : List Fruit -> Html Msg
