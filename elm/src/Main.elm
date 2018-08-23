@@ -3,6 +3,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode as JD
+import Tuple exposing (first, second)
 
 main =
   Html.program
@@ -74,14 +75,22 @@ updateFilter filters filter =
 
 view : Model -> Html Msg
 view model =
-  div [] [ drawTable model.fruits ]
+  div [] [ drawTable [ ("name", .name), ("color", .color) ] model.fruits ]
 
-drawTable : List Fruit -> Html Msg
-drawTable fruits =
+type alias PropertyInfo a =
+  (String, a -> String)
+
+drawTable : List (PropertyInfo a) -> List a -> Html Msg
+drawTable propertyInfo data =
   let
-    propertyNames = [ "name", "color" ]
+    propertyNames = List.map first propertyInfo
+    propertyAccessors = List.map second propertyInfo
+
+    headerRow = drawHeaderRow propertyNames
+    filterRow = drawFilterRow propertyNames
+    dataRows = List.map (\x -> drawDataRow propertyAccessors x) data
   in
-    table [] (drawHeaderRow propertyNames :: drawFilterRow propertyNames :: (List.map drawFruitRow fruits))
+    table [] (headerRow :: filterRow :: dataRows)
 
 drawHeaderRow : List String -> Html Msg
 drawHeaderRow names =
@@ -92,20 +101,24 @@ drawHeader name =
   td [] [text name]
 
 drawFilterRow : List String -> Html Msg
-drawFilterRow names =
-  tr [] (List.map drawFilter names)
+drawFilterRow filterNames =
+  tr [] (List.map drawFilter filterNames)
 
 drawFilter : String -> Html Msg
 drawFilter filterName =
-  td [] [ input [ onInput (createOnFilterChange filterName), placeholder ("Filter...") ] [] ]
+  td [] [ input [ onInput (createOnFilterChange filterName), placeholder "Filter..." ] [] ]
 
 createOnFilterChange : String -> String -> Msg
-createOnFilterChange filterName =
-  (\fv -> UpdateFilter (Filter filterName fv))
+createOnFilterChange filterName filterValue =
+  UpdateFilter (Filter filterName filterValue)
 
-drawFruitRow : Fruit -> Html Msg
-drawFruitRow fruit =
-  tr [] [ td [] [text fruit.name], td [] [text fruit.color] ]
+drawDataRow : List (a -> String) -> a -> Html Msg
+drawDataRow accessors datum =
+  tr [] (List.map (\x -> drawDataColumn x datum) accessors)
+
+drawDataColumn : (a -> String) -> a -> Html Msg
+drawDataColumn accessor datum =
+  td [] [text (accessor datum)]
 
 
 -- SUBSCRIPTIONS
