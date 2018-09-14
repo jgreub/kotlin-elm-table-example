@@ -1,3 +1,4 @@
+import Browser exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -10,15 +11,15 @@ import GenericTable.View exposing (drawTable)
 import GenericTable.Cmd exposing (getData)
 
 main =
-  Html.program
-  { init = init
-  , view = view
-  , update = update
-  , subscriptions = subscriptions
-  }
+  document
+    { init = init
+    , view = view
+    , update = update
+    , subscriptions = subscriptions
+    }
 
-init : (Model, Cmd Msg)
-init =
+init : () -> (Model, Cmd Msg)
+init _ =
   let
     initialModel = Model [] []
   in
@@ -62,9 +63,11 @@ update msg model =
 
 -- VIEW
 
-view : Model -> Html Msg
+view : Model -> Document Msg
 view model =
-  div [] [ drawTable (\filter -> UpdateFilter filter) [ ("name", .name), ("color", .color) ] model.fruits ]
+  Document
+    "Generic Tables"
+    [ div [] [ drawTable (\filter -> UpdateFilter filter) [ ("name", .name), ("color", .color) ] model.fruits ] ]
 
 
 -- SUBSCRIPTIONS

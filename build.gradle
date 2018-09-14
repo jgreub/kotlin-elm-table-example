@@ -1,11 +1,11 @@
 plugins {
-	id "org.jetbrains.kotlin.jvm" version "1.2.60"
-	id "org.jetbrains.kotlin.kapt" version "1.2.60"
-	id "org.jetbrains.kotlin.plugin.spring" version "1.2.60"
-	id "org.jetbrains.kotlin.plugin.jpa" version "1.2.60"
-	id "org.springframework.boot" version "2.0.4.RELEASE"
+	id "org.jetbrains.kotlin.jvm" version "1.2.70"
+	id "org.jetbrains.kotlin.kapt" version "1.2.70"
+	id "org.jetbrains.kotlin.plugin.spring" version "1.2.70"
+	id "org.jetbrains.kotlin.plugin.jpa" version "1.2.70"
+	id "org.springframework.boot" version "2.0.5.RELEASE"
 	id "io.spring.dependency-management" version "1.0.6.RELEASE"
-	id "org.mohme.gradle.elm-plugin" version "1.0.0"
+	id "org.mohme.gradle.elm-plugin" version "2.0.1"
 }
 
 repositories {

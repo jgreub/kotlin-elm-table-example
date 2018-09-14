@@ -3,6 +3,7 @@ module GenericTable.Cmd exposing (getData)
 import GenericTable.Core exposing (Filter)
 
 import Http
+import Url
 import Json.Decode as JD
 
 getData : (Result Http.Error a -> msg) -> String -> List Filter -> (JD.Decoder a) -> Cmd msg
@@ -19,4 +20,4 @@ getData dataMsg baseDataUrl filters decodeData =
 
 getFilterQueryParams : List Filter -> String
 getFilterQueryParams filters =
-  String.join "&" (List.map (\f -> (Http.encodeUri f.name) ++ "=" ++ (Http.encodeUri f.value)) filters)
+  String.join "&" (List.map (\f -> (Url.percentEncode f.name) ++ "=" ++ (Url.percentEncode f.value)) filters)

@@ -24,7 +24,7 @@ drawTable filterMsg propertyInfo data =
 
 drawHeaderRow : List String -> Html msg
 drawHeaderRow names =
-  thead [ style [ ("backgroundColor", "lightgray") ] ] [ tr [] (List.map drawHeader names) ]
+  thead [ style "backgroundColor" "lightgray" ] [ tr [] (List.map drawHeader names) ]
 
 drawHeader : String -> Html msg
 drawHeader name =
