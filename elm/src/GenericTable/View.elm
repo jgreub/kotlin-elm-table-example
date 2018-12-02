@@ -1,6 +1,6 @@
-module GenericTable.View exposing (drawTable)
+module GenericTable.View exposing (drawTable, PropertyInfo)
 
-import GenericTable.Core exposing (Filter)
+import GenericTable.Core exposing (Page, Filter)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -10,15 +10,15 @@ import Tuple exposing (first, second)
 type alias PropertyInfo a =
   (String, a -> String)
 
-drawTable : (Filter -> msg) -> List (PropertyInfo a) -> List a -> Html msg
-drawTable filterMsg propertyInfo data =
+drawTable : (Filter -> msg) -> List (PropertyInfo a) -> Page a -> Html msg
+drawTable filterMsg propertyInfo page =
   let
     propertyNames = List.map first propertyInfo
     propertyAccessors = List.map second propertyInfo
 
     headerRow = drawHeaderRow propertyNames
     filterRow = drawFilterRow filterMsg propertyNames
-    dataRows = List.map (\x -> drawDataRow propertyAccessors x) data
+    dataRows = List.map (\x -> drawDataRow propertyAccessors x) page.content
   in
     table [] (headerRow :: filterRow :: dataRows)
 

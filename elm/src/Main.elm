@@ -5,9 +5,9 @@ import Html.Events exposing (..)
 import Http
 import Json.Decode as JD
 
-import GenericTable.Core exposing (Filter)
-import GenericTable.Update exposing (updateFilter)
-import GenericTable.View exposing (drawTable)
+import GenericTable.Core exposing (Page, QueryOptions, Filter)
+import GenericTable.Update exposing (updateQueryOptionsFilter)
+import GenericTable.View exposing (drawTable, PropertyInfo)
 import GenericTable.Cmd exposing (getData)
 
 main =
@@ -21,16 +21,16 @@ main =
 init : () -> (Model, Cmd Msg)
 init _ =
   let
-    initialModel = Model [] []
+    initialModel = Model {content = []} (QueryOptions [] Nothing)
   in
-    (initialModel, getData (\result -> GotFruits result) "/fruit" initialModel.filters decodeFruit)
+    (initialModel, getData (\result -> GotFruits result) "/fruit" initialModel.queryOptions decodeFruit)
 
 
 -- MODEL
 
 type alias Model =
-  { fruits: List Fruit
-  , filters: List Filter
+  { fruits: Page Fruit
+  , queryOptions: QueryOptions
   }
 
 type alias Fruit =
@@ -42,7 +42,7 @@ type alias Fruit =
 -- UPDATE
 
 type Msg
-  = GotFruits (Result Http.Error (List Fruit))
+  = GotFruits (Result Http.Error (Page Fruit))
   | UpdateFilter Filter
 
 update: Msg -> Model -> (Model, Cmd Msg)
@@ -52,13 +52,13 @@ update msg model =
       ({model | fruits = fruits}, Cmd.none)
 
     GotFruits (Err _) ->
-      ({model | fruits = []}, Cmd.none)
+      ({model | fruits = {content = []}}, Cmd.none)
 
     UpdateFilter filter ->
       let
-        newFilters = updateFilter model.filters filter
+        newQueryOptions = updateQueryOptionsFilter model.queryOptions filter
       in
-        ({model | filters = newFilters}, getData (\result -> GotFruits result) "/fruit" newFilters decodeFruit)
+        ({model | queryOptions = newQueryOptions}, getData (\result -> GotFruits result) "/fruit" newQueryOptions decodeFruit)
 
 
 -- VIEW
@@ -67,7 +67,10 @@ view : Model -> Document Msg
 view model =
   Document
     "Generic Tables"
-    [ div [] [ drawTable (\filter -> UpdateFilter filter) [ ("name", .name), ("color", .color) ] model.fruits ] ]
+    [ div [] [ drawTable (\filter -> UpdateFilter filter) fruitColumns model.fruits ] ]
+
+fruitColumns : List (PropertyInfo Fruit)
+fruitColumns = [ ("name", .name), ("color", .color) ]
 
 
 -- SUBSCRIPTIONS
@@ -79,9 +82,8 @@ subscriptions model =
 
 -- DECODER
 
-decodeFruit : JD.Decoder (List Fruit)
+decodeFruit : JD.Decoder Fruit
 decodeFruit =
-  JD.list
-    (JD.map2 Fruit
-        (JD.field "name" JD.string)
-        (JD.field "color" JD.string))
+  JD.map2 Fruit
+    (JD.field "name" JD.string)
+    (JD.field "color" JD.string)
