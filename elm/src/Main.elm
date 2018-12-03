@@ -45,7 +45,7 @@ type Msg
   = GotFruits (Result Http.Error (Page Fruit))
   | UpdateFilter Filter
 
-update: Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     GotFruits (Ok fruits) ->
