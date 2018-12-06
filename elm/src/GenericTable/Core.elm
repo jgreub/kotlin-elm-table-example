@@ -1,4 +1,4 @@
-module GenericTable.Core exposing (Page, QueryOptions, Filter, Sort, SortDirection, FilterEvent)
+module GenericTable.Core exposing (Page, QueryOptions, Filter, Sort, SortDirection(..), FilterEvent, SortEvent)
 
 type alias Page a =
   { content: List a
@@ -24,4 +24,8 @@ type SortDirection = ASC | DESC
 type alias FilterEvent =
   { name: String,
     value: String
+  }
+
+type alias SortEvent =
+  { name: String
   }

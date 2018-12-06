@@ -5,8 +5,8 @@ import Html.Events exposing (..)
 import Http
 import Json.Decode as JD
 
-import GenericTable.Core exposing (Page, QueryOptions, FilterEvent)
-import GenericTable.Update exposing (updateQueryOptionsFilter)
+import GenericTable.Core exposing (Page, QueryOptions, FilterEvent, SortEvent)
+import GenericTable.Update exposing (updateQueryOptionsFilter, updateQueryOptionsSort)
 import GenericTable.View exposing (drawTable, PropertyInfo)
 import GenericTable.Cmd exposing (getData)
 
@@ -44,6 +44,7 @@ type alias Fruit =
 type Msg
   = GotFruits (Result Http.Error (Page Fruit))
   | UpdateFilter FilterEvent
+  | UpdateSort SortEvent
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -54,9 +55,15 @@ update msg model =
     GotFruits (Err _) ->
       ({model | fruits = {content = []}}, Cmd.none)
 
-    UpdateFilter filter ->
+    UpdateFilter filterEvent ->
       let
-        newQueryOptions = updateQueryOptionsFilter model.queryOptions filter
+        newQueryOptions = updateQueryOptionsFilter model.queryOptions filterEvent
+      in
+        ({model | queryOptions = newQueryOptions}, getData (\result -> GotFruits result) "/fruit" newQueryOptions decodeFruit)
+
+    UpdateSort sortEvent ->
+      let
+        newQueryOptions = updateQueryOptionsSort model.queryOptions sortEvent
       in
         ({model | queryOptions = newQueryOptions}, getData (\result -> GotFruits result) "/fruit" newQueryOptions decodeFruit)
 
@@ -67,7 +74,7 @@ view : Model -> Document Msg
 view model =
   Document
     "Generic Tables"
-    [ div [] [ drawTable (\filter -> UpdateFilter filter) fruitColumns model.fruits ] ]
+    [ div [] [ drawTable (\filterEvent -> UpdateFilter filterEvent) (\sortEvent -> UpdateSort sortEvent) fruitColumns model.fruits ] ]
 
 fruitColumns : List (PropertyInfo Fruit)
 fruitColumns = [ ("name", .name), ("color", .color) ]

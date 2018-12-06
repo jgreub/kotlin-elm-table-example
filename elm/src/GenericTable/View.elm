@@ -1,6 +1,6 @@
 module GenericTable.View exposing (drawTable, PropertyInfo)
 
-import GenericTable.Core exposing (Page, FilterEvent)
+import GenericTable.Core exposing (Page, FilterEvent, SortEvent)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -10,37 +10,41 @@ import Tuple exposing (first, second)
 type alias PropertyInfo a =
   (String, a -> String)
 
-drawTable : (FilterEvent -> msg) -> List (PropertyInfo a) -> Page a -> Html msg
-drawTable filterMsg propertyInfo page =
+drawTable : (FilterEvent -> msg) -> (SortEvent -> msg) -> List (PropertyInfo a) -> Page a -> Html msg
+drawTable filterMsg sortMsg propertyInfo page =
   let
     propertyNames = List.map first propertyInfo
     propertyAccessors = List.map second propertyInfo
 
-    headerRow = drawHeaderRow propertyNames
+    headerRow = drawHeaderRow sortMsg propertyNames
     filterRow = drawFilterRow filterMsg propertyNames
     dataRows = List.map (\x -> drawDataRow propertyAccessors x) page.content
   in
     table [] (headerRow :: filterRow :: dataRows)
 
-drawHeaderRow : List String -> Html msg
-drawHeaderRow names =
-  thead [ style "backgroundColor" "lightgray" ] [ tr [] (List.map drawHeader names) ]
+drawHeaderRow : (SortEvent -> msg) -> List String -> Html msg
+drawHeaderRow sortMsg fieldNames =
+  thead [ style "backgroundColor" "lightgray" ] [ tr [] (List.map (\x -> drawHeader sortMsg x) fieldNames) ]
 
-drawHeader : String -> Html msg
-drawHeader name =
-  td [] [text name]
+drawHeader : (SortEvent -> msg) -> String -> Html msg
+drawHeader sortMsg fieldName =
+  td [ onClick (createSortMsg sortMsg fieldName) ] [text fieldName]
+
+createSortMsg : (SortEvent -> msg) -> String -> msg
+createSortMsg sortMsg fieldName =
+  sortMsg (SortEvent fieldName)
 
 drawFilterRow : (FilterEvent -> msg) -> List String -> Html msg
-drawFilterRow filterMsg filterNames =
-  tr [] (List.map (\x -> drawFilter filterMsg x) filterNames)
+drawFilterRow filterMsg fieldNames =
+  tr [] (List.map (\x -> drawFilter filterMsg x) fieldNames)
 
 drawFilter : (FilterEvent -> msg) -> String -> Html msg
-drawFilter filterMsg filterName =
-  td [] [ input [ onInput (createOnFilterChange filterMsg filterName), placeholder "Filter..." ] [] ]
+drawFilter filterMsg fieldName =
+  td [] [ input [ onInput (createFilterMsg filterMsg fieldName), placeholder "Filter..." ] [] ]
 
-createOnFilterChange : (FilterEvent -> msg) -> String -> String -> msg
-createOnFilterChange filterMsg filterName filterValue =
-  filterMsg (FilterEvent filterName filterValue)
+createFilterMsg : (FilterEvent -> msg) -> String -> String -> msg
+createFilterMsg filterMsg fieldName filterValue =
+  filterMsg (FilterEvent fieldName filterValue)
 
 drawDataRow : List (a -> String) -> a -> Html msg
 drawDataRow accessors datum =

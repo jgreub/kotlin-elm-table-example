@@ -1,6 +1,6 @@
 module GenericTable.Cmd exposing (getData)
 
-import GenericTable.Core exposing (Page, QueryOptions, Filter)
+import GenericTable.Core exposing (Page, QueryOptions, Filter, Sort, SortDirection(..))
 
 import Http
 import Url
@@ -22,7 +22,27 @@ getData dataMsg baseDataUrl queryOptions dataDecoder =
 -- Size -> ?size=<num>, Page -> ?page=<0-index>
 getQueryParamsString : QueryOptions -> String
 getQueryParamsString queryOptions =
-  String.join "&" (List.map (\f -> (Url.percentEncode f.name) ++ "=" ++ (Url.percentEncode f.value)) queryOptions.filters)
+  let
+    filterQueryParams = List.map (\f -> (Url.percentEncode f.name) ++ "=" ++ (Url.percentEncode f.value)) queryOptions.filters
+    sortQueryParam = getSortQueryParamString queryOptions.sort
+  in
+    String.join "&" (List.append filterQueryParams sortQueryParam)
+
+getSortQueryParamString : Maybe Sort -> List String
+getSortQueryParamString sort =
+  case sort of
+    Just activeSort ->
+      let
+        direction =
+          if activeSort.direction == ASC then
+            "asc"
+          else
+            "desc"
+      in
+        [ "sort=" ++ (Url.percentEncode activeSort.name) ++ "," ++ direction ]
+
+    Nothing ->
+      []
 
 pageDecoder : (JD.Decoder a) -> JD.Decoder (Page a)
 pageDecoder dataDecoder =
