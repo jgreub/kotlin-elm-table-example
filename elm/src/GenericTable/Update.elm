@@ -1,12 +1,12 @@
 module GenericTable.Update exposing (updateQueryOptionsFilter)
 
-import GenericTable.Core exposing (QueryOptions, Filter)
+import GenericTable.Core exposing (QueryOptions, Filter, FilterEvent)
 
-updateQueryOptionsFilter : QueryOptions -> Filter -> QueryOptions
+updateQueryOptionsFilter : QueryOptions -> FilterEvent -> QueryOptions
 updateQueryOptionsFilter queryOptions filter =
   {queryOptions | filters = updateFilters queryOptions.filters filter}
 
-updateFilters : List Filter -> Filter -> List Filter
+updateFilters : List Filter -> FilterEvent -> List Filter
 updateFilters filters filter =
   let
     filteredFilters = List.filter (\f -> f.name /= filter.name) filters

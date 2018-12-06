@@ -5,7 +5,7 @@ import Html.Events exposing (..)
 import Http
 import Json.Decode as JD
 
-import GenericTable.Core exposing (Page, QueryOptions, Filter)
+import GenericTable.Core exposing (Page, QueryOptions, FilterEvent)
 import GenericTable.Update exposing (updateQueryOptionsFilter)
 import GenericTable.View exposing (drawTable, PropertyInfo)
 import GenericTable.Cmd exposing (getData)
@@ -43,7 +43,7 @@ type alias Fruit =
 
 type Msg
   = GotFruits (Result Http.Error (Page Fruit))
-  | UpdateFilter Filter
+  | UpdateFilter FilterEvent
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
